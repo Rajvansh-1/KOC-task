@@ -31,19 +31,19 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
   const [isQueueing, setIsQueueing] = useState(false);
 
   // Queries
-  const { data: tournament, isLoading: loadingT } = useQuery({
+  const { data: tournament, isLoading: loadingT } = useQuery<any>({
     queryKey: ['tournament', tournamentId],
-    queryFn: () => api.get(`/api/v1/tournaments/${tournamentId}`),
+    queryFn: async () => (await api.get(`/api/v1/tournaments/${tournamentId}`)) as any,
   });
 
   const { data: participants, isLoading: loadingP } = useQuery<any[]>({
     queryKey: ['tournament-participants', tournamentId],
-    queryFn: () => api.get(`/api/v1/tournaments/${tournamentId}/participants`),
+    queryFn: async () => (await api.get(`/api/v1/tournaments/${tournamentId}/participants`)) as any,
   });
 
   const { data: leaderboard, isLoading: loadingL } = useQuery<LeaderboardEntry[]>({
     queryKey: ['tournament-leaderboard', tournamentId],
-    queryFn: () => api.get(`/api/v1/tournaments/${tournamentId}/leaderboard`),
+    queryFn: async () => (await api.get(`/api/v1/tournaments/${tournamentId}/leaderboard`)) as any,
   });
 
   // Check if current user is enrolled

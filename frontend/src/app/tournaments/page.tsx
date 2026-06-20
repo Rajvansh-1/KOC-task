@@ -31,7 +31,7 @@ export default function TournamentsDashboard() {
   // Fetch tournaments
   const { data: tournaments, isLoading } = useQuery<Tournament[]>({
     queryKey: ['tournaments'],
-    queryFn: () => api.get('/api/v1/tournaments'),
+    queryFn: async () => (await api.get('/api/v1/tournaments')) as any,
   });
 
   // Create tournament mutation
@@ -94,11 +94,11 @@ export default function TournamentsDashboard() {
 
         {user?.role === 'coach' && (
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
+            <DialogTrigger render={
               <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20">
                 <Plus className="mr-2 h-4 w-4" /> Create Tournament
               </Button>
-            </DialogTrigger>
+            } />
             <DialogContent className="glass border-white/10 sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Create Tournament</DialogTitle>
