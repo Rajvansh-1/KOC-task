@@ -6,7 +6,7 @@ async function runMigrations() {
   console.log('🗄️  Running database migrations...');
   try {
     await migrate(db, {
-      migrationsFolder: path.join(__dirname, '..', '..', 'drizzle'),
+      migrationsFolder: path.join(__dirname, '..', '..', '..', 'drizzle'),
     });
     console.log('✅  Migrations completed successfully');
   } catch (error) {
