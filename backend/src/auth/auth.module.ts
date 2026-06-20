@@ -8,9 +8,11 @@ import { JwtStrategy } from './jwt.strategy';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'koc_dev_secret_change_in_production_2026',
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN ?? '7d' },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET ?? 'koc_dev_secret_change_in_production_2026',
+        signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as any },
+      }),
     }),
   ],
   controllers: [AuthController],
