@@ -35,8 +35,8 @@ services:
   # ── 2. NestJS API ────────────────────────────────────────────────────────────
   api:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://koc:koc123@db:5432/koc_db
@@ -58,8 +58,8 @@ services:
   # ── 3. Next.js Frontend ──────────────────────────────────────────────────────
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: http://localhost:3001
         JWT_SECRET: ${JWT_SECRET:-koc_dev_secret_change_in_production_2026}

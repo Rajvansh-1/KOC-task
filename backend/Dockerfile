@@ -4,10 +4,13 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --strict-peer-dependencies=false
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY backend/package.json ./backend/
+COPY frontend/package.json ./frontend/
+RUN pnpm install --frozen-lockfile
 
-COPY . .
+COPY backend ./backend
+WORKDIR /app/backend
 RUN pnpm build
 
 # ── Stage 2: Production ────────────────────────────────────────────────────
@@ -16,11 +19,15 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod --strict-peer-dependencies=false
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY backend/package.json ./backend/
+COPY frontend/package.json ./frontend/
+RUN pnpm install --frozen-lockfile --prod
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/drizzle ./backend/drizzle
+# Copy the compiled output
+WORKDIR /app/backend
 
 EXPOSE 3001
 

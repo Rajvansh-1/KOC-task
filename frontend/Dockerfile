@@ -32,4 +32,4 @@ COPY --from=builder /app/frontend/.next/static ./.next/static
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "frontend/server.js"]
