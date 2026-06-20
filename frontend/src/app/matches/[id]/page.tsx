@@ -1,7 +1,7 @@
 'use client';
 
-import { use, useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
 import { useSocket } from '@/hooks/useSocket';
@@ -14,9 +14,9 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Flag, ShieldAlert, Trophy, ShieldBan } from 'lucide-react';
 
-export default function MatchPage({ params }: { params: Promise<{ id: string }> }) {
-  const unwrappedParams = use(params);
-  const matchId = unwrappedParams.id;
+export default function MatchPage() {
+  const params = useParams();
+  const matchId = params.id as string;
   
   const router = useRouter();
   const { user } = useAuthStore();

@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { UserPlus, Play, Trophy, Users, Clock, Hash } from 'lucide-react';
 
 interface LeaderboardEntry {
@@ -20,9 +20,9 @@ interface LeaderboardEntry {
   buchholz: number;
 }
 
-export default function TournamentDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const unwrappedParams = use(params);
-  const tournamentId = unwrappedParams.id;
+export default function TournamentDetailPage() {
+  const params = useParams();
+  const tournamentId = params.id as string;
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const router = useRouter();
