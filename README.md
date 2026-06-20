@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/chess/chess.png" width="100" height="100" alt="Chess Logo" />
+  <img src="./frontend/public/complete-logo.webp" width="200" alt="KOC Arena Logo" />
   <h1>♚ Kingdom of Chess (KOC) Arena ♚</h1>
   <p><strong>A Full-Stack, Real-Time, Server-Authoritative Multiplayer Chess Platform</strong></p>
 
@@ -122,23 +122,62 @@ KOC-task/
 
 ---
 
-## 🚀 Quickstart & Setup
+## 🚀 Quickstart: From Clone to Play
 
-### 1. Requirements
-- **Docker Desktop** installed and running.
-- **Node.js** (v20+) and **pnpm** (if developing outside of Docker).
+We have containerized the entire stack for an absolutely frictionless reviewing experience. No need to install Postgres locally or juggle node versions!
 
-### 2. Environment Variables
-No manual configuration is required to test! The `docker-compose.yml` is hardcoded to mount the provided `.env.example` configurations. 
-*Note: If running natively without Docker, copy the `.env.example` file to `.env` in the `backend/` directory and configure your local Postgres instance.*
+### Step 1: Clone the Repository
+```bash
+git clone <your-repository-url>
+cd KOC-task
+```
 
-### 3. Database Migrations & Seeding
-The backend handles database schema pushing and seeding automatically. 
-When the backend starts, it runs `npm run db:push` and `npm run db:seed`. This provisions the schema and populates the database with:
-- **1 Coach**
-- **4 Students**
+### Step 2: Ensure Docker is Running
+Make sure you have **Docker Desktop** installed and running on your machine.
 
-#### Seed Credentials
+### Step 3: Spin Up the Stack
+Run the following command from the root of the project. It will automatically build the Next.js frontend, the NestJS backend, and provision a fresh PostgreSQL database.
+```bash
+docker compose up --build -d
+```
+*Note: The `docker-compose.yml` is pre-configured to utilize the `.env.example` files automatically, so you don't even need to configure environment variables to get started! Database migrations and seeding also happen automatically on boot.*
+
+### Step 4: Verify the Services
+The application is now live!
+- **Frontend UI:** [http://localhost:3000](http://localhost:3000)
+- **Backend API:** [http://localhost:3001](http://localhost:3001)
+
+### Step 5: Test the Application (The Live Match)
+The database has already been seeded with dummy accounts. Here is exactly how to test the real-time matchmaking and gameplay:
+
+**1. Create & Start a Tournament (As a Coach)**
+1. Open a browser tab to `http://localhost:3000`.
+2. Log in using the Coach credentials:
+   - **Email:** `coach@koc.com`
+   - **Password:** `Coach@123`
+3. Click **Create Tournament**, give it a name, and hit Save.
+4. On the tournament's details page, click the **Start Tournament** button. The status will change from `DRAFT` to `OPEN`.
+
+**2. Join the Matchmaking Queue (As Students)**
+1. Open a brand new **Incognito/Private** window.
+2. Log in as Student 1:
+   - **Email:** `alice@koc.com`
+   - **Password:** `Student@123`
+3. Navigate to the tournament you just created, hit **Join**, and then click **Find Match**. Alice is now waiting in the queue.
+4. Open a *second*, completely separate **Incognito/Private** window.
+5. Log in as Student 2:
+   - **Email:** `bob@koc.com`
+   - **Password:** `Student@123`
+6. Navigate to the same tournament, hit **Join**, and click **Find Match**.
+
+**3. Play the Game!**
+1. The server will instantly detect two eligible players, pair them, generate a game, and seamlessly route both browsers to the live 3D chessboard.
+2. The user assigned **White** goes first. Drag and drop a piece!
+3. Watch the clocks automatically sync and count down in real time, and watch the move instantly replicate onto the opponent's screen via WebSockets.
+4. Test out the **Resign** button to immediately end the match and declare a winner!
+
+### Seeded Credentials Cheat Sheet
+If you want to test further, the following accounts exist in the database:
 | Role | Name | Email | Password |
 |:---:|:---|:---|:---|
 | 👑 **Coach** | Admin Coach | `coach@koc.com` | `Coach@123` |
@@ -146,35 +185,6 @@ When the backend starts, it runs `npm run db:push` and `npm run db:seed`. This p
 | ♟️ **Student** | Bob Verma | `bob@koc.com` | `Student@123` |
 | ♟️ **Student** | Charlie King | `charlie@koc.com` | `Student@123` |
 | ♟️ **Student** | Diana Queen | `diana@koc.com` | `Student@123` |
-
-### 4. Starting the Application
-Simply run the following command from the root of the project:
-```bash
-docker compose up --build -d
-```
-This will spin up:
-- **PostgreSQL** on port `5432`
-- **NestJS Backend** on `http://localhost:3001`
-- **Next.js Frontend** on `http://localhost:3000`
-
----
-
-## 🎮 How to Play Locally
-
-To test the real-time sync, you need to simulate two separate players.
-
-1. **Create the Tournament:** 
-   - Open a browser window to `http://localhost:3000`. Log in as the **Coach** (`coach@koc.com`). 
-   - Click *Create Tournament*, fill the details, and hit Save.
-   - Click the **Start Tournament** button on its detail page. It is now open.
-2. **Setup Player 1:** 
-   - Open an **Incognito/Private** window. Log in as **Alice** (`alice@koc.com`).
-   - Navigate to the Tournament and click **Join**, then click **Find Match**.
-3. **Setup Player 2:** 
-   - Open a **Second Incognito** window. Log in as **Bob** (`bob@koc.com`).
-   - Navigate to the Tournament, hit Join, and click **Find Match**.
-4. **The Match:** 
-   - The server will detect both waiting players, pair them, generate the game, and seamlessly route both browsers to the 3D chessboard. Make your first move as White and watch the server sync it across to Black instantly!
 
 ---
 
