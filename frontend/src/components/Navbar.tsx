@@ -45,25 +45,21 @@ export function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-xl shadow-sm">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center transition-transform hover:scale-105">
-            <img src="/Kindomofchess-logo.webp" alt="Kingdom of Chess" className="h-12 sm:h-14 w-auto object-contain" />
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-xl">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-105">
+            <img src="/Kindomofchess-logo.webp" alt="Kingdom of Chess" className="h-10 w-auto object-contain" />
           </Link>
-        </div>
-
-        {/* Navigation Links - Centered */}
-        <div className="hidden lg:flex items-center gap-6 text-[13px] font-bold tracking-wider text-[#222222]">
-          <Link href="/" className="hover:text-primary transition-colors border-b-2 border-primary pb-1 uppercase">Home</Link>
-          <Link href="/about" className="hover:text-primary transition-colors uppercase">About Us ▾</Link>
-          <Link href="/programs" className="hover:text-primary transition-colors uppercase">Chess Programs ▾</Link>
-          <Link href="/success" className="hover:text-primary transition-colors uppercase">Success Stories</Link>
-          <Link href="/learn" className="hover:text-primary transition-colors uppercase">Learn Chess ▾</Link>
-          <Link href="/coaches" className="hover:text-primary transition-colors uppercase">Coaches</Link>
           
           {isAuthenticated && (
-            <Link href="/tournaments" className="hover:text-primary transition-colors uppercase text-primary">Arena</Link>
+            <div className="hidden md:flex gap-4">
+              <Link href="/tournaments">
+                <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+                  Tournaments
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -71,29 +67,29 @@ export function Navbar() {
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Avatar className="h-9 w-9 ring-2 ring-primary/20">
+                <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                   <AvatarFallback className="bg-primary/10 text-primary font-bold">
                     {user?.name.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden md:flex flex-col text-left">
-                  <span className="text-sm font-bold text-gray-800 leading-none">{user?.name}</span>
-                  <span className="text-xs text-gray-500 capitalize mt-1">{user?.role}</span>
+                <div className="hidden md:flex flex-col">
+                  <span className="text-sm font-bold text-foreground leading-none">{user?.name}</span>
+                  <span className="text-xs text-muted-foreground capitalize mt-0.5">{user?.role}</span>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors">
-                <LogOut className="h-5 w-5" />
+              <Button variant="ghost" size="icon" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
+                <LogOut className="h-4 w-4" />
                 <span className="sr-only">Log out</span>
               </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="hidden sm:block">
-                <Button variant="ghost" className="font-bold text-gray-600 hover:text-primary">Sign In</Button>
+            <div className="flex items-center gap-2">
+              <Link href="/login">
+                <Button variant="ghost" className="font-semibold text-foreground">Sign In</Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-gradient-to-r from-[#F37021] to-[#F69259] hover:opacity-90 text-white shadow-xl shadow-[#F37021]/30 rounded-full px-6 h-10 font-bold transition-all hover:scale-105 border-0">
-                  Book a Free trial Class
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 font-bold">
+                  Get Started
                 </Button>
               </Link>
             </div>
