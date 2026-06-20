@@ -7,7 +7,7 @@ RUN npm install -g pnpm
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY backend/package.json ./backend/
 COPY frontend/package.json ./frontend/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copy frontend source and build
 COPY frontend ./frontend
