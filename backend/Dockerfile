@@ -32,4 +32,4 @@ WORKDIR /app/backend
 EXPOSE 3001
 
 # CMD is overridden by docker-compose (migrate → seed → start)
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]

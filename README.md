@@ -54,7 +54,7 @@ The system automatically seeds the following accounts so you can test immediatel
 
 The project follows a strict Monorepo structure managed by `pnpm workspaces`.
 
-### Backend (`/backend`)
+### Backend (`/backend`)1
 - **Framework:** NestJS (Express under the hood)
 - **Database:** PostgreSQL accessed via Drizzle ORM
 - **Auth:** Stateless JWT (`jose` and `passport-jwt`) issued via `httpOnly` secure cookies to prevent XSS.

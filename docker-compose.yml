@@ -51,9 +51,9 @@ services:
       db:
         condition: service_healthy
     command: >-
-      sh -c "node dist/database/migrate.js &&
-             node dist/database/seed.js &&
-             node dist/main"
+      sh -c "node dist/src/database/migrate.js &&
+             node dist/src/database/seed.js &&
+             node dist/src/main"
 
   # ── 3. Next.js Frontend ──────────────────────────────────────────────────────
   frontend:

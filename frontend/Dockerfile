@@ -26,9 +26,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
 # Next.js standalone output copies only necessary files
-COPY --from=builder /app/frontend/public ./public
+COPY --from=builder /app/frontend/public ./frontend/public
 COPY --from=builder /app/frontend/.next/standalone ./
-COPY --from=builder /app/frontend/.next/static ./.next/static
+COPY --from=builder /app/frontend/.next/static ./frontend/.next/static
 
 EXPOSE 3000
 
