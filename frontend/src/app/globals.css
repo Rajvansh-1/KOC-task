@@ -10,41 +10,46 @@
 }
 
 :root {
-  /* Enforce Dark Mode Palette System-Wide */
-  color-scheme: dark;
+  /* Enforce Light Mode Palette System-Wide */
+  color-scheme: light;
 
-  --background: 230 25% 6%;
-  --foreground: 210 40% 98%;
+  /* Cream/warm white background */
+  --background: 30 70% 98%;
+  /* Dark text */
+  --foreground: 220 30% 15%;
 
-  --card: 228 20% 10%;
-  --card-foreground: 210 40% 98%;
+  /* White cards */
+  --card: 0 0% 100%;
+  --card-foreground: 220 30% 15%;
 
-  --popover: 228 20% 10%;
-  --popover-foreground: 210 40% 98%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 30% 15%;
 
-  --primary: 260 80% 65%;
-  --primary-foreground: 210 40% 98%;
+  /* Primary Orange */
+  --primary: 26 92% 50%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 220 20% 15%;
-  --secondary-foreground: 210 40% 98%;
+  /* Secondary (Dark Blue / Deep Navy from logo/text context) */
+  --secondary: 210 60% 30%;
+  --secondary-foreground: 0 0% 100%;
 
-  --muted: 220 20% 15%;
-  --muted-foreground: 215 20% 65%;
+  --muted: 30 20% 90%;
+  --muted-foreground: 220 15% 40%;
 
-  --accent: 260 50% 30%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 210 60% 30%;
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 0 0% 100%;
 
-  --border: 220 20% 15%;
-  --input: 220 20% 15%;
-  --ring: 260 80% 65%;
+  --border: 30 20% 85%;
+  --input: 30 20% 85%;
+  --ring: 26 92% 50%;
 
   --radius: 0.75rem;
 
   /* Custom Glow Tokens */
-  --glow-primary: 260 80% 65%;
+  --glow-primary: 26 92% 50%;
 }
 
 @theme inline {
@@ -79,18 +84,18 @@
   }
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground;
-    /* Rich radial gradient for depth */
-    background-image: radial-gradient(circle at 50% -20%, hsl(var(--primary) / 0.15), transparent 60%);
+    /* Soft radial glow for depth */
+    background-image: radial-gradient(circle at 50% -20%, hsl(var(--primary) / 0.05), transparent 50%);
     min-height: 100vh;
   }
 }
 
 /* Glassmorphism utility */
 .glass {
-  @apply bg-card/40 backdrop-blur-xl border border-white/5 shadow-2xl;
+  @apply bg-card/80 backdrop-blur-xl border border-black/5 shadow-xl shadow-primary/5;
 }
 
 /* Micro-animations */
 .hover-lift {
-  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20;
+  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10;
 }
