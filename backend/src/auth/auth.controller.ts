@@ -5,21 +5,26 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtService } from '@nestjs/jwt';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   // ── POST /api/v1/auth/register ────────────────────────────────────────────
   @Post('register')
@@ -55,8 +60,23 @@ export class AuthController {
 
   // ── GET /api/v1/auth/me ───────────────────────────────────────────────────
   @Get('me')
-  @UseGuards(AuthGuard('jwt'))
-  getMe(@CurrentUser() user: any) {
-    return user;
+  async getMe(@Req() req: Request) {
+    try {
+      const token = req.cookies?.['jwt'];
+      if (!token) return null;
+      
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET ?? 'koc_dev_secret_change_in_production_2026',
+      });
+      
+      return {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        role: payload.role,
+      };
+    } catch {
+      return null;
+    }
   }
 }

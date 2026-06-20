@@ -40,7 +40,7 @@ The system automatically seeds the following accounts so you can test immediatel
 | **Student** | Bob | `bob@koc.com` | `Student@123` |
 | **Student** | Charlie | `charlie@koc.com` | `Student@123` |
 | **Student** | Diana | `diana@koc.com` | `Student@123` |
-
+111
 ### Recommended Testing Flow:
 1. **Coach:** Open a normal browser window, log in as `coach@koc.com`. Create a new Tournament (e.g., "Grand Arena").
 2. **Student 1:** Open an **Incognito** window, log in as `alice@koc.com`. Navigate to the Tournament, click "Join", then "Find Match".

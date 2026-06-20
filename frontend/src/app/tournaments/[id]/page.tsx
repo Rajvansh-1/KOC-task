@@ -74,15 +74,17 @@ export default function TournamentDetailPage() {
 
     const onError = (data: { message: string }) => {
       setIsQueueing(false);
-      toast.error(data.message);
+      toast.error(data.message || 'An error occurred');
     };
 
     socket.on('match:ready', onMatchReady);
     socket.on('error', onError);
+    socket.on('exception', onError);
 
     return () => {
       socket.off('match:ready', onMatchReady);
       socket.off('error', onError);
+      socket.off('exception', onError);
     };
   }, [socket, router]);
 

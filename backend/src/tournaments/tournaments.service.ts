@@ -115,7 +115,9 @@ export class TournamentsService {
       )
       .limit(1);
 
-    if (existing) throw new ConflictException('Already a participant');
+    if (existing) {
+      return { message: 'Already a participant' };
+    }
 
     await this.db.insert(tournamentParticipants).values({ tournamentId, userId });
     return { message: 'Joined tournament successfully' };

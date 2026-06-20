@@ -30,20 +30,32 @@ export class TournamentsController {
 
   // GET /api/v1/tournaments/:id
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tournamentsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.tournamentsService.findOne(id);
+    } catch {
+      return null;
+    }
   }
 
   // GET /api/v1/tournaments/:id/participants
   @Get(':id/participants')
-  getParticipants(@Param('id') id: string) {
-    return this.tournamentsService.getParticipants(id);
+  async getParticipants(@Param('id') id: string) {
+    try {
+      return await this.tournamentsService.getParticipants(id);
+    } catch {
+      return [];
+    }
   }
 
   // GET /api/v1/tournaments/:id/matches
   @Get(':id/matches')
-  getMatches(@Param('id') id: string) {
-    return this.tournamentsService.getMatches(id);
+  async getMatches(@Param('id') id: string) {
+    try {
+      return await this.tournamentsService.getMatches(id);
+    } catch {
+      return [];
+    }
   }
 
   // PATCH /api/v1/tournaments/:id — Coach only

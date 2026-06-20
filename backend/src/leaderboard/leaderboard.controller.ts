@@ -8,7 +8,11 @@ export class LeaderboardController {
   constructor(private readonly leaderboardService: LeaderboardService) {}
 
   @Get(':id/leaderboard')
-  getLeaderboard(@Param('id') id: string) {
-    return this.leaderboardService.getLeaderboard(id);
+  async getLeaderboard(@Param('id') id: string) {
+    try {
+      return await this.leaderboardService.getLeaderboard(id);
+    } catch {
+      return [];
+    }
   }
 }

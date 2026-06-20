@@ -8,12 +8,20 @@ export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @Get(':id')
-  getMatch(@Param('id') id: string) {
-    return this.matchesService.getMatchDetail(id);
+  async getMatch(@Param('id') id: string) {
+    try {
+      return await this.matchesService.getMatchDetail(id);
+    } catch {
+      return null;
+    }
   }
 
   @Get(':id/moves')
-  getMoves(@Param('id') id: string) {
-    return this.matchesService.getMoves(id);
+  async getMoves(@Param('id') id: string) {
+    try {
+      return await this.matchesService.getMoves(id);
+    } catch {
+      return [];
+    }
   }
 }
