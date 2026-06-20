@@ -22,6 +22,7 @@ interface LeaderboardEntry {
 
 export default function TournamentDetailPage() {
   const params = useParams();
+  if (!params) return null;
   const tournamentId = params.id as string;
   const { user } = useAuthStore();
   const queryClient = useQueryClient();

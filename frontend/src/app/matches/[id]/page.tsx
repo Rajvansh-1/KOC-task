@@ -16,6 +16,7 @@ import { Flag, ShieldAlert, Trophy, ShieldBan } from 'lucide-react';
 
 export default function MatchPage() {
   const params = useParams();
+  if (!params) return null;
   const matchId = params.id as string;
   
   const router = useRouter();
@@ -194,11 +195,11 @@ export default function MatchPage() {
           <div className="rounded-md overflow-hidden border-4 border-white/5 shadow-2xl">
             <Chessboard
               position={matchState.fen}
-              onPieceDrop={onDrop}
+              onPieceDrop={(source, target) => onDrop(source, target)}
               boardOrientation={boardOrientation}
               customDarkSquareStyle={{ backgroundColor: '#2e3240' }}
               customLightSquareStyle={{ backgroundColor: '#757e96' }}
-              isDraggablePiece={({ piece }) => {
+              isDraggablePiece={({ piece }: { piece: string }) => {
                 if (!isPlayer || matchState.status !== 'ongoing') return false;
                 return piece.startsWith(matchState.myColor!.charAt(0)); // 'w' or 'b'
               }}
