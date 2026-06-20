@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] -z-10 opacity-20" />
       
-      <Card className="w-full max-w-md glass border-white/10 shadow-2xl animate-in fade-in zoom-in duration-500">
+      <Card className="w-full max-w-md glass border shadow-2xl animate-in fade-in zoom-in duration-500">
         <CardHeader className="space-y-2 text-center pb-8">
           <CardTitle className="text-3xl font-bold tracking-tight">Welcome Back</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -58,7 +58,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="coach@koc.com"
-                  className="pl-10 bg-background/50 border-white/10 focus-visible:ring-primary"
+                  className="pl-10 bg-background/50 border focus-visible:ring-primary"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -72,7 +72,8 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type="password"
-                  className="pl-10 bg-background/50 border-white/10 focus-visible:ring-primary"
+                  placeholder="••••••••"
+                  className="pl-10 bg-background/50 border focus-visible:ring-primary"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

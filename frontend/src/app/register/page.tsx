@@ -45,7 +45,7 @@ export default function RegisterPage() {
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
       <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] -z-10 opacity-20" />
       
-      <Card className="w-full max-w-md glass border-white/10 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <Card className="w-full max-w-md glass border shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
         <CardHeader className="space-y-2 text-center pb-6">
           <CardTitle className="text-3xl font-bold tracking-tight">Create Account</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -61,7 +61,7 @@ export default function RegisterPage() {
                 <Input
                   id="name"
                   placeholder="Magnus Carlsen"
-                  className="pl-10 bg-background/50 border-white/10 focus-visible:ring-primary"
+                  className="pl-10 bg-background/50 border focus-visible:ring-primary"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -77,7 +77,7 @@ export default function RegisterPage() {
                   id="email"
                   type="email"
                   placeholder="magnus@koc.com"
-                  className="pl-10 bg-background/50 border-white/10 focus-visible:ring-primary"
+                  className="pl-10 bg-background/50 border focus-visible:ring-primary"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -92,7 +92,8 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type="password"
-                  className="pl-10 bg-background/50 border-white/10 focus-visible:ring-primary"
+                  placeholder="••••••••"
+                  className="pl-10 bg-background/50 border focus-visible:ring-primary"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -103,11 +104,11 @@ export default function RegisterPage() {
             <div className="space-y-3 pt-2">
               <Label>I am a...</Label>
               <RadioGroup defaultValue="student" onValueChange={(v) => setRole(v as 'coach'|'student')} className="flex gap-4">
-                <div className="flex items-center space-x-2 bg-background/50 border border-white/10 px-4 py-3 rounded-lg flex-1 cursor-pointer hover:border-primary/50 transition-colors">
+                <div className="flex items-center space-x-2 bg-background/50 border border px-4 py-3 rounded-lg flex-1 cursor-pointer hover:border-primary/50 transition-colors">
                   <RadioGroupItem value="student" id="r-student" />
                   <Label htmlFor="r-student" className="cursor-pointer">Student</Label>
                 </div>
-                <div className="flex items-center space-x-2 bg-background/50 border border-white/10 px-4 py-3 rounded-lg flex-1 cursor-pointer hover:border-primary/50 transition-colors">
+                <div className="flex items-center space-x-2 bg-background/50 border border px-4 py-3 rounded-lg flex-1 cursor-pointer hover:border-primary/50 transition-colors">
                   <RadioGroupItem value="coach" id="r-coach" />
                   <Label htmlFor="r-coach" className="cursor-pointer">Coach</Label>
                 </div>

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 export function useSocket() {
   const { isAuthenticated } = useAuthStore();
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -15,6 +15,8 @@ export function useSocket() {
 
     if (!socket.connected) {
       socket.connect();
+    } else {
+      setIsConnected(true);
     }
 
     const onConnect = () => setIsConnected(true);

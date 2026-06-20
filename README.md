@@ -14,12 +14,13 @@
 
 ## 📖 Table of Contents
 1. [🌟 Core Features](#-core-features)
-2. [🏗️ System Architecture](#-system-architecture)
-3. [📂 Codebase Structure](#-codebase-structure)
-4. [🚀 Quickstart & Setup](#-quickstart--setup)
-5. [🎮 How to Play Locally](#-how-to-play-locally)
-6. [📡 WebSockets Dictionary](#-websockets-dictionary)
-7. [⚖️ Engineering Decisions & Trade-offs](#-engineering-decisions--trade-offs)
+2. [🛠️ Tech Stack](#️-tech-stack)
+3. [🏗️ System Architecture](#️-system-architecture)
+4. [📂 Codebase Structure](#-codebase-structure)
+5. [🚀 Quickstart: From Clone to Play](#-quickstart-from-clone-to-play)
+6. [📸 Demo Screenshots](#-demo-screenshots)
+7. [📡 WebSockets Dictionary](#-websockets-dictionary)
+8. [⚖️ Engineering Decisions & Trade-offs](#️-engineering-decisions--trade-offs)
 
 ---
 
@@ -30,6 +31,13 @@
 - **Robust Reconnections**: Accidentally close the tab? No problem. The server remembers exactly whose turn it is, the board FEN, and exactly how many milliseconds are left on the clock.
 - **Automated Leaderboards**: Points are dynamically awarded upon match completion (1 for a win, 0.5 for a draw), calculating tournament rankings on the fly.
 - **Role-Based Access Control**: Strict JWT protections segregate Coach (Admin) and Student (Player) actions.
+
+---
+
+## 🛠️ Tech Stack
+- **Backend:** NestJS 11 (Strict Mode), TypeScript, Socket.IO, Drizzle ORM, PostgreSQL, class-validator.
+- **Frontend:** Next.js 15 (App Router, Strict Mode), React 19, TailwindCSS v4, shadcn/ui, TanStack React Query, Socket.IO Client, `react-chessboard`.
+- **Game Engine:** `chess.js` (used headless on the server for strict move validation and on the client for local rendering and PGN).
 
 ---
 
@@ -176,6 +184,27 @@ The database has already been seeded with dummy accounts. Here is exactly how to
 3. Watch the clocks automatically sync and count down in real time, and watch the move instantly replicate onto the opponent's screen via WebSockets.
 4. Test out the **Resign** button to immediately end the match and declare a winner!
 
+---
+
+## 📸 Demo Screenshots
+<div align="center">
+  <img src="./frontend/public/screenshots/demo-1.png" width="800" alt="Demo 1" />
+  <br/><br/>
+  <img src="./frontend/public/screenshots/demo-2.png" width="800" alt="Demo 2" />
+  <br/><br/>
+  <img src="./frontend/public/screenshots/demo-3.png" width="800" alt="Demo 3" />
+  <br/><br/>
+  <img src="./frontend/public/screenshots/demo-4.png" width="800" alt="Demo 4" />
+  <br/><br/>
+  <img src="./frontend/public/screenshots/demo-5.png" width="800" alt="Demo 5" />
+  <br/><br/>
+  <img src="./frontend/public/screenshots/demo-6.png" width="800" alt="Demo 6" />
+  <br/><br/>
+  <img src="./frontend/public/screenshots/demo-7.png" width="800" alt="Demo 7" />
+</div>
+
+---
+
 ### Seeded Credentials Cheat Sheet
 If you want to test further, the following accounts exist in the database:
 | Role | Name | Email | Password |
@@ -224,3 +253,9 @@ Timers dynamically calculate elapsed time server-side (`Date.now() - state.lastM
 
 ### 4. Error Boundary Catching
 Every Socket event on the backend is wrapped in strict `try/catch` blocks that emit generalized `exception` strings back to the user interface. This guarantees that if a database timeout or edge-case validation failure occurs mid-game, the WebSocket server doesn't crash—it gracefully rejects the input and notifies the player via a UI Toast.
+
+---
+
+<div align="center">
+  <b>Designed & Developed by <a href="https://github.com/Rajvansh-1">Rajvansh-1</a></b>
+</div>
