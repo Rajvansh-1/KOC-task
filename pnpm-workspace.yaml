@@ -1,0 +1,8 @@
+packages:
+  - 'backend'
+  - 'frontend'
+allowBuilds:
+  bcrypt: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
