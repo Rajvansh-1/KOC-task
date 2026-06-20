@@ -1,0 +1,76 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Kingdom of Chess — Full Stack
+#
+# ONE COMMAND:  docker compose up
+# Then open:   http://localhost:3000
+#
+# Seed credentials (also in README):
+#   Coach:    coach@koc.com    / Coach@123
+#   Student1: alice@koc.com   / Student@123
+#   Student2: bob@koc.com     / Student@123
+#   Student3: charlie@koc.com / Student@123
+#   Student4: diana@koc.com   / Student@123
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── 1. Database ─────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: koc
+      POSTGRES_PASSWORD: koc123
+      POSTGRES_DB: koc_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U koc -d koc_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── 2. NestJS API ────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://koc:koc123@db:5432/koc_db
+      JWT_SECRET: ${JWT_SECRET:-koc_dev_secret_change_in_production_2026}
+      JWT_EXPIRES_IN: 7d
+      PORT: 3001
+      FRONTEND_URL: http://localhost:3000
+      NODE_ENV: production
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >-
+      sh -c "node dist/database/migrate.js &&
+             node dist/database/seed.js &&
+             node dist/main"
+
+  # ── 3. Next.js Frontend ──────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+        JWT_SECRET: ${JWT_SECRET:-koc_dev_secret_change_in_production_2026}
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+
+volumes:
+  postgres_data:
