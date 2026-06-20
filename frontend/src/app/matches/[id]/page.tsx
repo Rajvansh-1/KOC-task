@@ -76,13 +76,13 @@ export default function MatchPage() {
       matchState.updateTime(data.whiteTimeMs, data.blackTimeMs);
     };
 
-    const onMovePlayed = (data: { fen: string; pgn: string; move: any; nextTurn: 'white' | 'black' }) => {
+    const onMovePlayed = (data: { fen: string; pgn: string; move: any; turn: 'white' | 'black' }) => {
       try {
         chess.loadPgn(data.pgn);
         matchState.setMatchState({
           fen: data.fen,
           pgn: data.pgn,
-          turn: data.nextTurn,
+          turn: data.turn,
         });
       } catch (e) {
         console.error(e);
@@ -100,26 +100,29 @@ export default function MatchPage() {
     };
 
     const onError = (data: { message: string }) => {
-      toast.error(data.message);
+      console.error('Socket error/exception:', data);
+      toast.error(data.message || 'An error occurred');
     };
 
     socket.on('match:state', onMatchState);
-    socket.on('match:time', onTimeUpdate);
-    socket.on('match:move_played', onMovePlayed);
-    socket.on('match:ended', onMatchEnded);
+    socket.on('clock:tick', onTimeUpdate);
+    socket.on('move:made', onMovePlayed);
+    socket.on('game:over', onMatchEnded);
     socket.on('error', onError);
+    socket.on('exception', onError);
 
     return () => {
       socket.off('match:state', onMatchState);
-      socket.off('match:time', onTimeUpdate);
-      socket.off('match:move_played', onMovePlayed);
-      socket.off('match:ended', onMatchEnded);
+      socket.off('clock:tick', onTimeUpdate);
+      socket.off('move:made', onMovePlayed);
+      socket.off('game:over', onMatchEnded);
       socket.off('error', onError);
+      socket.off('exception', onError);
     };
   }, [socket, isConnected, matchId, user, chess]); // eslint-disable-line
 
   const onDrop = (sourceSquare: string, targetSquare: string) => {
-    if (matchState.status !== 'ongoing') return false;
+    if (matchState.status !== 'active') return false;
     if (matchState.myColor && matchState.turn !== matchState.myColor) return false;
 
     try {
@@ -138,13 +141,11 @@ export default function MatchPage() {
       });
 
       // Send to server
-      socket.emit('match:move', {
+      socket.emit('move:make', {
         matchId,
-        move: {
-          from: sourceSquare,
-          to: targetSquare,
-          promotion: 'q',
-        },
+        from: sourceSquare,
+        to: targetSquare,
+        promotion: 'q',
       });
 
       return true;
@@ -155,7 +156,7 @@ export default function MatchPage() {
 
   const handleResign = () => {
     if (confirm('Are you sure you want to resign?')) {
-      socket.emit('match:resign', { matchId });
+      socket.emit('game:resign', { matchId });
     }
   };
 
@@ -184,9 +185,9 @@ export default function MatchPage() {
         {/* Chessboard Area */}
         <div className="flex flex-col gap-4 mx-auto w-full max-w-2xl">
           {isPlayer && (
-            <div className="flex justify-between items-center bg-card/40 p-3 rounded-lg border border-white/10 shadow-md">
-              <div className="font-semibold">{opponent?.name || 'Opponent'}</div>
-              <div className={`font-mono text-xl ${matchState.turn !== matchState.myColor && matchState.status === 'ongoing' ? 'text-primary' : 'text-muted-foreground'}`}>
+            <div className="flex justify-between items-center bg-card p-4 rounded-lg border shadow-md">
+              <div className="font-semibold text-lg">{opponent?.name || 'Opponent'}</div>
+              <div className={`font-mono text-2xl font-bold ${matchState.turn !== matchState.myColor && matchState.status === 'active' ? 'text-primary' : 'text-muted-foreground'}`}>
                 {formatTime(opponentTime)}
               </div>
             </div>
@@ -200,16 +201,16 @@ export default function MatchPage() {
               customDarkSquareStyle={{ backgroundColor: '#2e3240' }}
               customLightSquareStyle={{ backgroundColor: '#757e96' }}
               isDraggablePiece={({ piece }: { piece: string }) => {
-                if (!isPlayer || matchState.status !== 'ongoing') return false;
+                if (!isPlayer || matchState.status !== 'active') return false;
                 return piece.startsWith(matchState.myColor!.charAt(0)); // 'w' or 'b'
               }}
             />
           </div>
 
           {isPlayer && (
-            <div className="flex justify-between items-center bg-card/60 p-3 rounded-lg border border-primary/20 shadow-lg shadow-primary/5">
-              <div className="font-semibold text-primary">{self?.name || 'You'}</div>
-              <div className={`font-mono text-2xl font-bold ${matchState.turn === matchState.myColor && matchState.status === 'ongoing' ? 'text-green-400 animate-pulse' : 'text-white'}`}>
+            <div className="flex justify-between items-center bg-card p-4 rounded-lg border shadow-md">
+              <div className="font-semibold text-lg">{self?.name || 'You'}</div>
+              <div className={`font-mono text-2xl font-bold ${matchState.turn === matchState.myColor && matchState.status === 'active' ? 'text-green-600' : 'text-muted-foreground'}`}>
                 {formatTime(selfTime)}
               </div>
             </div>
@@ -234,7 +235,7 @@ export default function MatchPage() {
                   </div>
                 )}
                 
-                {isPlayer && matchState.status === 'ongoing' && (
+                {isPlayer && matchState.status === 'active' && (
                   <Button 
                     variant="destructive" 
                     className="w-full mt-4 bg-destructive/80 hover:bg-destructive"

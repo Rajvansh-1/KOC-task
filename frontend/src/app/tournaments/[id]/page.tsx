@@ -48,7 +48,7 @@ export default function TournamentDetailPage() {
   });
 
   // Check if current user is enrolled
-  const isEnrolled = participants?.some((p: any) => p.userId === user?.id) || false;
+  const isEnrolled = participants?.some((p: any) => p.id === user?.id) || false;
 
   const joinMutation = useMutation({
     mutationFn: () => api.post(`/api/v1/tournaments/${tournamentId}/join`),
@@ -59,6 +59,18 @@ export default function TournamentDetailPage() {
     },
     onError: (err: any) => {
       toast.error(err.message || 'Failed to join tournament');
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: (status: string) => api.patch(`/api/v1/tournaments/${tournamentId}`, { status }),
+    onSuccess: () => {
+      toast.success('Tournament started successfully!');
+      queryClient.invalidateQueries({ queryKey: ['tournament', tournamentId] });
+      queryClient.invalidateQueries({ queryKey: ['tournaments'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update tournament status');
     },
   });
 
@@ -147,6 +159,19 @@ export default function TournamentDetailPage() {
                     <Play className="mr-2 h-5 w-5" /> {isQueueing ? 'In Queue...' : 'Find Match'}
                   </Button>
                 )}
+              </div>
+            )}
+
+            {user?.role === 'coach' && tournament.status === 'draft' && (
+              <div className="z-10">
+                <Button 
+                  size="lg" 
+                  className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
+                  onClick={() => updateStatusMutation.mutate('open')}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  <Play className="mr-2 h-5 w-5" /> Start Tournament
+                </Button>
               </div>
             )}
           </div>

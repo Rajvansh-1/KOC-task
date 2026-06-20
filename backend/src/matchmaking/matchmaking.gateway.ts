@@ -198,13 +198,16 @@ export class MatchmakingGateway implements OnGatewayConnection, OnGatewayDisconn
   ) {
     const { userId, name } = client.data;
     const { matchId } = data;
+    this.logger.log(`Received match:join from ${name} (${userId}) for match ${matchId}`);
 
-    const match = await this.matchesService.findByIdWithPlayers(matchId);
+    try {
+      const match = await this.matchesService.findByIdWithPlayers(matchId);
 
-    // Only participants may join the match room
-    if (match.whitePlayer.id !== userId && match.blackPlayer.id !== userId) {
-      throw new WsException('You are not a participant of this match');
-    }
+      // Only participants may join the match room
+      if (match.whitePlayer.id !== userId && match.blackPlayer.id !== userId) {
+        this.logger.error(`User ${userId} is not in match ${matchId}`);
+        throw new WsException('You are not a participant of this match');
+      }
 
     // Join the Socket.IO room
     await client.join(`match:${matchId}`);
@@ -230,25 +233,29 @@ export class MatchmakingGateway implements OnGatewayConnection, OnGatewayDisconn
       this.startClockTick(matchId);
     }
 
-    const state = this.liveMatches.get(matchId);
+      const state = this.liveMatches.get(matchId);
 
-    // Send full match state (handles reconnection)
-    client.emit('match:state', {
-      matchId,
-      fen:          state?.game.fen() ?? match.fen,
-      pgn:          state?.game.pgn() ?? match.pgn ?? '',
-      turn:         state?.game.turn() === 'w' ? 'white' : 'black',
-      whiteTimeMs:  state?.whiteTimeMs ?? match.whiteTimeRemainingMs,
-      blackTimeMs:  state?.blackTimeMs ?? match.blackTimeRemainingMs,
-      status:       match.status,
-      whitePlayer:  match.whitePlayer,
-      blackPlayer:  match.blackPlayer,
-    });
+      // Send full match state (handles reconnection)
+      client.emit('match:state', {
+        matchId,
+        fen:          state?.game.fen() ?? match.fen,
+        pgn:          state?.game.pgn() ?? match.pgn ?? '',
+        turn:         state?.game.turn() === 'w' ? 'white' : 'black',
+        whiteTimeMs:  state?.whiteTimeMs ?? match.whiteTimeRemainingMs,
+        blackTimeMs:  state?.blackTimeMs ?? match.blackTimeRemainingMs,
+        status:       match.status,
+        whitePlayer:  match.whitePlayer,
+        blackPlayer:  match.blackPlayer,
+      });
 
-    // Notify opponent that this player (re)connected
-    client.to(`match:${matchId}`).emit('player:reconnected', { userId, name });
+      // Notify opponent that this player (re)connected
+      client.to(`match:${matchId}`).emit('player:reconnected', { userId, name });
 
-    this.logger.log(`${name} joined match room ${matchId}`);
+      this.logger.log(`${name} joined match room ${matchId}`);
+    } catch (error: any) {
+      this.logger.error(`Error in handleJoinMatch: ${error.message}`);
+      throw new WsException(error.message || 'Internal server error');
+    }
   }
 
   // ── MOVES ─────────────────────────────────────────────────────────────────
@@ -258,16 +265,18 @@ export class MatchmakingGateway implements OnGatewayConnection, OnGatewayDisconn
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { matchId: string; from: string; to: string; promotion?: string },
   ) {
-    const { userId } = client.data;
-    const { matchId, from, to, promotion } = data;
+    try {
+      const { userId } = client.data;
+      const { matchId, from, to, promotion } = data;
+      this.logger.log(`Received move from ${userId} for match ${matchId}: ${from} -> ${to}`);
 
-    const state = this.liveMatches.get(matchId);
-    if (!state) throw new WsException('Match not found or not active');
+      const state = this.liveMatches.get(matchId);
+      if (!state) throw new WsException('Match not found or not active');
 
-    // Verify it's this player's turn
-    const isWhite = state.whitePlayerId === userId;
-    const isBlack = state.blackPlayerId === userId;
-    if (!isWhite && !isBlack) throw new WsException('You are not in this match');
+      // Verify it's this player's turn
+      const isWhite = state.whitePlayerId === userId;
+      const isBlack = state.blackPlayerId === userId;
+      if (!isWhite && !isBlack) throw new WsException('You are not in this match');
 
     const currentTurn = state.game.turn(); // 'w' or 'b'
     if ((currentTurn === 'w' && !isWhite) || (currentTurn === 'b' && !isBlack)) {
@@ -330,18 +339,22 @@ export class MatchmakingGateway implements OnGatewayConnection, OnGatewayDisconn
       blackTimeMs:  state.blackTimeMs,
     });
 
-    // Check game-over conditions
-    if (state.game.isGameOver()) {
-      let result:       'white_wins' | 'black_wins' | 'draw' = 'draw';
-      let resultReason: 'checkmate' | 'stalemate'            = 'stalemate';
+      // Check game-over conditions
+      if (state.game.isGameOver()) {
+        let result:       'white_wins' | 'black_wins' | 'draw' = 'draw';
+        let resultReason: 'checkmate' | 'stalemate'            = 'stalemate';
 
-      if (state.game.isCheckmate()) {
-        // The side that just moved wins
-        result       = currentTurn === 'w' ? 'white_wins' : 'black_wins';
-        resultReason = 'checkmate';
+        if (state.game.isCheckmate()) {
+          // The side that just moved wins
+          result       = currentTurn === 'w' ? 'white_wins' : 'black_wins';
+          resultReason = 'checkmate';
+        }
+        // stalemate / insufficient material / repetition / 50-move → draw
+        await this.endMatch(matchId, state, result, resultReason);
       }
-      // stalemate / insufficient material / repetition / 50-move → draw
-      await this.endMatch(matchId, state, result, resultReason);
+    } catch (error: any) {
+      this.logger.error(`Error in handleMove: ${error.message}`);
+      client.emit('move:invalid', { reason: error.message || 'Illegal move' });
     }
   }
 
@@ -418,10 +431,30 @@ export class MatchmakingGateway implements OnGatewayConnection, OnGatewayDisconn
       const state = this.liveMatches.get(matchId);
       if (!state) { clearInterval(interval); return; }
 
+      let wTime = state.whiteTimeMs;
+      let bTime = state.blackTimeMs;
+      const elapsed = Date.now() - state.lastMoveAt;
+
+      // Only deduct if a move has actually been made (moveCount > 0) or game strictly started.
+      if (state.moveCount > 0) {
+        if (state.game.turn() === 'w') {
+          wTime = Math.max(0, wTime - elapsed);
+        } else {
+          bTime = Math.max(0, bTime - elapsed);
+        }
+      }
+
       this.server.to(`match:${matchId}`).emit('clock:tick', {
-        whiteTimeMs: state.whiteTimeMs,
-        blackTimeMs: state.blackTimeMs,
+        whiteTimeMs: wTime,
+        blackTimeMs: bTime,
       });
+
+      if (wTime === 0 || bTime === 0) {
+         clearInterval(interval);
+         state.clockInterval = null;
+         const result = wTime === 0 ? 'black_wins' : 'white_wins';
+         this.endMatch(matchId, state, result, 'timeout');
+      }
     }, 1000);
 
     const state = this.liveMatches.get(matchId);
