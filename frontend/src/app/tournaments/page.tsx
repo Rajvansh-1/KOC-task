@@ -155,7 +155,7 @@ export default function TournamentsDashboard() {
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <CalendarDays className="mr-2 h-4 w-4 text-accent" />
-                    <span>{new Date(t.startAt).toLocaleString()}</span>
+                    <span suppressHydrationWarning>{new Date(t.startAt).toLocaleString()}</span>
                   </div>
                 </CardContent>
               </Card>
