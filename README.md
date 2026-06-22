@@ -25,19 +25,27 @@
 ---
 
 ## 🌟 Core Features
-- **Server-Authoritative Game Engine**: A headless `chess.js` instance runs on the backend validating every move. A tampered client cannot spoof an illegal move or cheat the clock.
-- **Real-Time Synchronization**: WebSockets provide instantaneous, two-way move syncing between paired opponents.
-- **Automated Matchmaking**: Students join a FIFO queue and are instantly paired and seamlessly redirected to a live board.
-- **Robust Reconnections**: Accidentally close the tab? No problem. The server remembers exactly whose turn it is, the board FEN, and exactly how many milliseconds are left on the clock.
-- **Automated Leaderboards**: Points are dynamically awarded upon match completion (1 for a win, 0.5 for a draw), calculating tournament rankings on the fly.
-- **Role-Based Access Control**: Strict JWT protections segregate Coach (Admin) and Student (Player) actions.
+
+| Feature | Description |
+|---|---|
+| **Real-Time Gameplay** | Instant move syncing between players using WebSockets. |
+| **Cheat-Proof Engine** | The backend verifies every move. Players cannot hack the browser to cheat. |
+| **Auto Matchmaking** | Students wait in a queue and are automatically paired together. |
+| **Smart Reconnections** | If your browser refreshes, you jump right back into your game safely. |
+| **Live Leaderboards** | Points (Win = 1, Draw = 0.5) automatically update tournament rankings. |
+| **Role Security** | Secure JWT accounts keep Coaches (Admins) and Students separate. |
 
 ---
 
 ## 🛠️ Tech Stack
-- **Backend:** NestJS 11 (Strict Mode), TypeScript, Socket.IO, Drizzle ORM, PostgreSQL, class-validator.
-- **Frontend:** Next.js 15 (App Router, Strict Mode), React 19, TailwindCSS v4, shadcn/ui, TanStack React Query, Socket.IO Client, `react-chessboard`.
-- **Game Engine:** `chess.js` (used headless on the server for strict move validation and on the client for local rendering and PGN).
+
+| Layer | Technologies Used |
+|---|---|
+| **Frontend UI** | Next.js 15, React 19, TailwindCSS v4, shadcn/ui |
+| **Backend API** | NestJS 11, TypeScript |
+| **Real-Time Sync** | Socket.IO |
+| **Database** | PostgreSQL, Drizzle ORM |
+| **Game Logic** | `chess.js` |
 
 ---
 
@@ -144,11 +152,10 @@ cd KOC-task
 Make sure you have **Docker Desktop** installed and running on your machine.
 
 ### Step 3: Spin Up the Stack
-Run the following command from the root of the project. It will automatically build the Next.js frontend, the NestJS backend, and provision a fresh PostgreSQL database.
+Just run this one simple command from the root of the project! It will automatically start the database, backend, and frontend for you. No manual environment configuration is needed.
 ```bash
 docker compose up --build -d
 ```
-*Note: The `docker-compose.yml` is pre-configured to utilize the `.env.example` files automatically, so you don't even need to configure environment variables to get started! Database migrations and seeding also happen automatically on boot.*
 
 ### Step 4: Verify the Services
 The application is now live!
@@ -237,22 +244,12 @@ The entire live-play feature operates on a single Socket.IO connection. Below is
 
 ## ⚖️ Engineering Decisions & Trade-offs
 
-### 1. Server-Authoritative Game Engine
-Instead of merely relaying move strings between clients, the `MatchmakingGateway` initializes an in-memory `chess.js` instance for every single active match. 
-- **Why:** Security and robustness. A tampered client cannot force an illegal move, bypass turn logic, or manipulate the FEN state to win. 
-- **Trade-off:** In-memory maps (`this.liveMatches`) don't natively scale horizontally. If we deployed 5 backend nodes behind a load balancer, we would need to store serialized FEN strings in Redis alongside a Socket.IO Redis Adapter to route events properly.
-
-### 2. Time Synchronization Strategy
-Timers dynamically calculate elapsed time server-side (`Date.now() - state.lastMoveAt`) on every move, and broadcast static `clock:tick` updates to clients.
-- **Why:** Centralized clocks mean players can't lose due to browser background throttling or JS UI lag.
-- **Trade-off:** Emitting an event every 1000ms per match creates heavy server traffic. In an enterprise production app, we would emit time state only *when a move is made*, and let the client optimistically interpolate the ticking visual natively using `requestAnimationFrame`. 
-
-### 3. Database ORM (Drizzle)
-- **Why:** Drizzle generates highly optimized, lightweight SQL queries and integrates seamlessly with our monorepo TypeScript schemas without the extreme bloat of TypeORM.
-- **Trade-off:** Defining the schema requires manual explicit mapping, meaning slightly slower initial scaffolding, but significantly better long-term maintainability.
-
-### 4. Error Boundary Catching
-Every Socket event on the backend is wrapped in strict `try/catch` blocks that emit generalized `exception` strings back to the user interface. This guarantees that if a database timeout or edge-case validation failure occurs mid-game, the WebSocket server doesn't crash—it gracefully rejects the input and notifies the player via a UI Toast.
+| Decision | Why we did it | The Trade-off |
+|---|---|---|
+| **Separating Frontend & Backend** | Keeps the code clean. Frontend handles UI, Backend handles heavy game logic. | Requires running two separate servers. |
+| **Using Socket.IO** | Automatically handles dropped connections and WiFi flickers. | Slightly heavier than raw WebSockets. |
+| **Server-Side Move Validation** | 100% security against cheating. We don't trust the browser. | Uses slightly more backend server memory. |
+| **Using Drizzle ORM** | Extremely fast and generates very lightweight SQL queries. | Requires writing more explicit database schemas. |
 
 ---
 
